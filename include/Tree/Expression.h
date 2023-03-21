@@ -23,8 +23,8 @@ namespace miracle {
 			binaryOperator(binaryOperator),
 			rhs(rhs) {}
 
-		const UnaryExpression* getUnaryExpression() const {
-			return unaryExpression.get();
+		const shared_ptr<UnaryExpression> getUnaryExpression() const {
+			return unaryExpression;
 		}
 
 		const shared_ptr<Expression> getLhs() const {

@@ -69,11 +69,12 @@ namespace miracle {
 
 		double getNumber(char character) {
 			string numberLiteral = { character, 0 };
-			char got = getCharacter();
+			char peeked = stream.peek();
 
-			while (isdigit(got) || got == '.') {
+			while (isdigit(peeked) || peeked == '.') {
+				auto got = getCharacter();
 				numberLiteral += got;
-				got = getCharacter();
+				peeked = stream.peek();
 			}
 
 			auto result = stod(numberLiteral);

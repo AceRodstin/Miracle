@@ -11,19 +11,19 @@ using namespace std;
 namespace miracle {
 	class UnaryExpression: private AST {
 	public:
-		UnaryExpression(shared_ptr<UnaryOperator> unaryOperator, shared_ptr<Operand> operand1): unaryOperator(unaryOperator), operand1(operand1) {}
+		UnaryExpression(shared_ptr<UnaryOperator> unaryOperator, shared_ptr<Operand> operand): unaryOperator(unaryOperator), operand(operand) {}
 
 		const shared_ptr<UnaryOperator> getUnaryOperator() const {
 			return unaryOperator;
 		}
 
 		const shared_ptr<Operand> getOperand() const {
-			return operand1;
+			return operand;
 		}
 
 	private:
 		shared_ptr<UnaryOperator> unaryOperator;
-		shared_ptr<Operand> operand1;
+		shared_ptr<Operand> operand;
 	};
 }
 

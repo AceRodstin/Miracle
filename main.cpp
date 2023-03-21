@@ -2,11 +2,18 @@
 #include <string>
 #include "TokensParser.h"
 #include "SyntacticAnalyzer.h"
+#include "Executor.h"
+#include <sstream>
 
 using namespace miracle;
 using namespace std;
 
-// Задача - написать JIT калькулятор с учетом граматики языка
+string format(double value) {
+	stringstream stream;
+	stream.precision(2);
+	stream << value;
+	return stream.str();
+}
 
 string calculate(string expression) {
 	TokensParser tokensParser { expression };
@@ -14,13 +21,10 @@ string calculate(string expression) {
 	SyntacticAnalyzer syntacticAnalyzer { tokensParser };
 	auto tree = syntacticAnalyzer.parse();
 
-	return "";
+	Executor executor { tree };
+	double result = executor.execute();
 
-	// Executor executor { tree };
-	// double result = executor.execute();
-
-	// Format result as 1.00
-	// return formattedResult;
+	return format(result);
 }
 
 int main() {
@@ -28,7 +32,7 @@ int main() {
 		cout << "Enter the expression> ";
 
 		string expression;
-		cin >> expression;
+		getline(cin, expression);
 
 		if (cin.eof()) {
 			break;

@@ -25,103 +25,61 @@ namespace miracle {
 		using Precedence = int;
 
 		TokensParser& tokensParser;
-		optional<Token> token;
 
 		shared_ptr<Expression> parseExpression() {
 			auto unaryExpression = parseUnaryExpression();
+			auto token = getToken();
+			auto precedence = getPrecedence(token);
 
-			if (auto binaryOperator = parseBinaryOperator()) {
+			if (auto binaryOperator = parseBinaryOperator(token)) {
 				auto lhs = make_shared<Expression>(unaryExpression);
-				return parseExpression(0, lhs, binaryOperator);
+				return parseExpression(precedence, lhs, binaryOperator);
 			} else {
-				auto result = make_shared<Expression>(unaryExpression);
-				return result;
+				return make_shared<Expression>(unaryExpression);
 			}
 		}
 
 		shared_ptr<Expression> parseExpression(Precedence precedence, shared_ptr<Expression> lhs, shared_ptr<BinaryOperator> binaryOperator) {
-			auto tokenPrecedence = getPrecedence();
-
-			if (tokenPrecedence < precedence) {
-				return lhs;
-			}
-
 			auto unaryExpression = parseUnaryExpression();
 			auto rhs = make_shared<Expression>(unaryExpression);
+			auto token = getToken();
 
-			if (auto nextBinaryOperator = parseBinaryOperator()) {
-				auto nextTokenPrecedence = getPrecedence();
+			if (auto nextBinaryOperator = parseBinaryOperator(token)) {
+				auto nextPrecedence = getPrecedence(token);
 
-				if (tokenPrecedence < nextTokenPrecedence) {
-					auto right = parseExpression(nextTokenPrecedence, rhs, nextBinaryOperator);
+				if (precedence < nextPrecedence) {
+					auto right = parseExpression(nextPrecedence, rhs, nextBinaryOperator);
 					return make_shared<Expression>(lhs, binaryOperator, right);
 				} else {
-					advance();
-					return make_shared<Expression>(lhs, binaryOperator, rhs);
+					auto left = make_shared<Expression>(lhs, binaryOperator, rhs);
+					return parseExpression(nextPrecedence, left, nextBinaryOperator);
 				}
 			} else {
-				advance();
 				return make_shared<Expression>(lhs, binaryOperator, rhs);
 			}
-
-
-
-
-			// У токена есть приоритет
-			// Распознание выполняется по одному токену, не нужно просматривать весь stream
-
-			// Что такое приоритет выражения? 
-			// Чем он отличается от приоритета токена?
-			// Можно ли их сравнивать
-			// Вопросы безопасности и ханинга
-			// Почему возвращается lhs в зависимости от приоритета токена
-
-			// Существует понятие приоритета выражения
-			// В качестве выражения может быть lhs
-			// Если есть еще токен, входящий в это выражение, то парсинг данного выражения продолжается,
-			// Иначе выражение сформировано, возвращается результат
-			// Рекурсия!
-
-			
-			// Если приоритет токена ниже приоритета выражения, то парсинг выражения завершен
-			// Иначе 
-
-			// Ввести понятие приоритета токена
-
-			// 1 + 2 -> null  1 2 1
-			// 1 + 2 + 3 -> 1  1 2 1 2 1
-			// 1 + 2 * 3 -> 2 1 2 1 3 1
-			// 1 + (2 + 3) -> null
-			// 1 + (2 * 3) + 4 -> 1
-
-
-
-
-
-			// Объявить метод, который возвращает опциональный следующий оператор
-			// Если оператор существует
-			// Если порядок следующего оператора выше, то вернуть lhs + (lhs * rhs)
-			// Иначе вернуть lhs + rhs
-			// Если оператор отсутсвует, то вернуть lhs
 		}
 
 		shared_ptr<UnaryExpression> parseUnaryExpression() {
-			auto unaryOperator = parseUnaryOperator();
-			auto operand = parseOperand();
-			auto unaryExpression = make_shared<UnaryExpression>(unaryOperator, operand);
-			advance();
-			return unaryExpression;
+			auto token = getToken();
+
+			if (auto unaryOperator = parseUnaryOperator(token)) {
+				auto nextToken = getToken();
+				auto operand = parseOperand(nextToken);
+				return make_shared<UnaryExpression>(unaryOperator, operand);
+			} else {
+				auto operand = parseOperand(token);
+				return make_shared<UnaryExpression>(unaryOperator, operand);
+			}
 		}
 
-		shared_ptr<UnaryOperator> parseUnaryOperator() {
-			auto _token = token.value();
-			auto kind = _token.getKind();
+		shared_ptr<UnaryOperator> parseUnaryOperator(Token token) {
+			auto kind = token.getKind();
 
 			if (kind != Token::Kind::_operator) {
 				return nullptr;
 			}
 
-			auto op = _token.getOperator();
+			auto op = token.getOperator();
 			shared_ptr<UnaryOperator> result;
 
 			switch (op) {
@@ -134,38 +92,31 @@ namespace miracle {
 				break;
 			}
 
-			advance();
 			return result;
 		}
 
-		shared_ptr<BinaryOperator> parseBinaryOperator() {
-			auto _token = token.value();
-			auto kind = _token.getKind();
+		shared_ptr<BinaryOperator> parseBinaryOperator(Token token) {
+			auto kind = token.getKind();
 
 			if (kind == Token::Kind::_operator) {
-				auto op = _token.getOperator();
-				auto result = make_shared<BinaryOperator>(op);
-				advance();
-				return result;
+				auto op = token.getOperator();
+				return make_shared<BinaryOperator>(op);
 			} else {
 				return nullptr;
 			}
 		}
 
-		shared_ptr<Operand> parseOperand() {
+		shared_ptr<Operand> parseOperand(Token token) {
 			shared_ptr<Operand> operand;
-
-			auto _token = token.value();
-			auto kind = _token.getKind();
+			auto kind = token.getKind();
 
 			switch (kind) {
 			case Token::Kind::number: {
-				auto number = _token.getNumber();
+				auto number = token.getNumber();
 				operand = make_shared<Operand>(number);
 				break;
 			}
 			case Token::Kind::punctuator: {
-				advance(); // Skip left parenthesis
 				auto expression = parseExpression();
 				operand = make_shared<Operand>(expression);
 				break;
@@ -174,25 +125,22 @@ namespace miracle {
 				break;
 			}
 
-			advance();
 			return operand;
 		}
 
-		Precedence getPrecedence() {
+		Precedence getPrecedence(Token token) {
 			Precedence precedence;
-
-			auto _token = token.value();
-			auto kind = _token.getKind();
+			auto kind = token.getKind();
 
 			switch (kind) {
 			case Token::Kind::number:
 				precedence = 1;
 				break;
 			case Token::Kind::_operator:
-				precedence = getPrecedence(_token.getOperator());
+				precedence = getPrecedence(token.getOperator());
 				break;
 			case Token::Kind::punctuator:
-				precedence = getPrecedence(_token.getPunctuator());
+				precedence = getPrecedence(token.getPunctuator());
 				break;
 			default:
 				break;
@@ -227,8 +175,8 @@ namespace miracle {
 			return precedence;
 		}
 
-		void advance() {
-			token = tokensParser.getToken();
+		Token getToken() {
+			return tokensParser.getToken();
 		}
 	};
 }
