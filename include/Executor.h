@@ -30,13 +30,13 @@ namespace miracle {
 			auto rhs = execute(expression->getRhs());
 
 			switch (op) {
-			case Operator::add:
+			case Operator::plus:
 				return lhs + rhs;
-			case Operator::subtruct:
+			case Operator::minus:
 				return lhs - rhs;
-			case Operator::multiply:
+			case Operator::multiplication:
 				return lhs * rhs;
-			case Operator::divide:
+			case Operator::division:
 				return lhs / rhs;
 			}
 		}
@@ -56,7 +56,7 @@ namespace miracle {
 				auto op = unaryOperator->getOperator();
 
 				switch (op) {
-				case Operator::subtruct:
+				case Operator::minus:
 					value = -value;
 					break;
 				default:

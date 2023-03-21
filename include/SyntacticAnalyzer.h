@@ -83,8 +83,8 @@ namespace miracle {
 			shared_ptr<UnaryOperator> result;
 
 			switch (op) {
-			case Operator::add:
-			case Operator::subtruct:
+			case Operator::plus:
+			case Operator::minus:
 				result = make_shared<UnaryOperator>(op);
 				break;
 			default:
@@ -151,13 +151,13 @@ namespace miracle {
 
 		Precedence getPrecedence(Operator op) {
 			switch (op) {
-			case Operator::add:
+			case Operator::plus:
 				return 2;
-			case Operator::subtruct:
+			case Operator::minus:
 				return 2;
-			case Operator::multiply:
+			case Operator::multiplication:
 				return 3;
-			case Operator::divide:
+			case Operator::division:
 				return 3;
 			}
 		}

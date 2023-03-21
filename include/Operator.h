@@ -8,10 +8,10 @@ using namespace std;
 
 namespace miracle {
 	enum class Operator {
-		add,
-		subtruct,
-		multiply,
-		divide
+		plus,
+		minus,
+		multiplication,
+		division
 	};
 }
 

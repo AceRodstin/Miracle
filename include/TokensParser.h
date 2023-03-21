@@ -52,10 +52,10 @@ namespace miracle {
 		stringstream stream;
 
 		map<char, Operator> operators {
-			{ '+', Operator::add },
-			{ '-', Operator::subtruct },
-			{ '*', Operator::multiply },
-			{ '/', Operator::divide }
+			{ '+', Operator::plus },
+			{ '-', Operator::minus },
+			{ '*', Operator::multiplication },
+			{ '/', Operator::division }
 		};
 
 		map<char, Punctuator> punctuators {
