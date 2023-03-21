@@ -29,44 +29,27 @@ namespace miracle {
 			}
 
 			if (isdigit(got)) {
-				numberValue = getNumber(got);
-				return Token::number;
+				auto value = getNumber(got);
+				return { Token::Kind::number, value };
 			}
 
 			if (auto op = getOperator(got)) {
-				_operator = op;
-				return Token::_operator;
+				return { op.value() };
 			}
 
 			if (auto punctuator = getPunctuator(got)) {
-				this->punctuator = punctuator;
-				return Token::punctuator;
+				return { punctuator.value() };
 			}
 
 			if (stream.eof()) {
-				return Token::endOfInput;
+				return { Token::Kind::endOfInput };
 			} else {
-				return Token::unknown;
+				return { Token::Kind::unknown };
 			}
-		}
-
-		double getNumberValue() const {
-			return numberValue;
-		}
-
-		Operator getOperator() const {
-			return _operator.value();
-		}
-
-		Punctuator getPunctuator() const {
-			return punctuator.value();
 		}
 
 	private:
 		stringstream stream;
-		double numberValue; // TODO: move to token
-		optional<Operator> _operator; // TODO: move to token
-		optional<Punctuator> punctuator; // TODO: move to token
 
 		map<char, Operator> operators {
 			{ '+', Operator::add },

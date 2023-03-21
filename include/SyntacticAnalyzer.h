@@ -25,7 +25,7 @@ namespace miracle {
 		using Precedence = int;
 
 		TokensParser& tokensParser;
-		Token token = Token::endOfInput;
+		optional<Token> token;
 
 		shared_ptr<Expression> parseExpression() {
 			auto unaryExpression = parseUnaryExpression();
@@ -114,11 +114,14 @@ namespace miracle {
 		}
 
 		shared_ptr<UnaryOperator> parseUnaryOperator() {
-			if (token != Token::_operator) {
+			auto _token = token.value();
+			auto kind = _token.getKind();
+
+			if (kind != Token::Kind::_operator) {
 				return nullptr;
 			}
 
-			auto op = tokensParser.getOperator();
+			auto op = _token.getOperator();
 			shared_ptr<UnaryOperator> result;
 
 			switch (op) {
@@ -136,8 +139,12 @@ namespace miracle {
 		}
 
 		shared_ptr<BinaryOperator> parseBinaryOperator() {
-			if (token == Token::_operator) {
-				auto result = make_shared<BinaryOperator>(tokensParser.getOperator());
+			auto _token = token.value();
+			auto kind = _token.getKind();
+
+			if (kind == Token::Kind::_operator) {
+				auto op = _token.getOperator();
+				auto result = make_shared<BinaryOperator>(op);
 				advance();
 				return result;
 			} else {
@@ -148,11 +155,16 @@ namespace miracle {
 		shared_ptr<Operand> parseOperand() {
 			shared_ptr<Operand> operand;
 
-			switch (token) {
-			case Token::number:
-				operand = make_shared<Operand>(tokensParser.getNumberValue());
+			auto _token = token.value();
+			auto kind = _token.getKind();
+
+			switch (kind) {
+			case Token::Kind::number: {
+				auto number = _token.getNumber();
+				operand = make_shared<Operand>(number);
 				break;
-			case Token::punctuator: {
+			}
+			case Token::Kind::punctuator: {
 				advance(); // Skip left parenthesis
 				auto expression = parseExpression();
 				operand = make_shared<Operand>(expression);
@@ -169,15 +181,18 @@ namespace miracle {
 		Precedence getPrecedence() {
 			Precedence precedence;
 
-			switch (token) {
-			case Token::number:
+			auto _token = token.value();
+			auto kind = _token.getKind();
+
+			switch (kind) {
+			case Token::Kind::number:
 				precedence = 1;
 				break;
-			case Token::_operator:
-				precedence = getPrecedence(tokensParser.getOperator());
+			case Token::Kind::_operator:
+				precedence = getPrecedence(_token.getOperator());
 				break;
-			case Token::punctuator:
-				precedence = getPrecedence(tokensParser.getPunctuator());
+			case Token::Kind::punctuator:
+				precedence = getPrecedence(_token.getPunctuator());
 				break;
 			default:
 				break;
