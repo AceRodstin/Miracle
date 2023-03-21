@@ -14,8 +14,7 @@ Non-terminals are in CamelCase. Terminals are enclosed in double quotes "".
 
 ```
 Expression = UnaryExpression | Expression BinaryOperator Expression .
-UnaryExpression = [ UnaryOperator ] PrimaryExpression .
-PrimaryExpression = Operand .
+UnaryExpression = [ UnaryOperator ] Operand .
 Operand = Literal | "(" Expression ")" .
 ```
 

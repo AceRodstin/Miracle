@@ -5,6 +5,7 @@
 enum class Token {
 	number,
 	_operator,
+	punctuator,
 	endOfInput,
 	unknown
 };

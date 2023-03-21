@@ -7,8 +7,10 @@
 #include <cctype>
 #include <optional>
 #include <algorithm>
+#include <map>
 #include "Token.h"
 #include "Operator.h"
+#include "Punctuator.h"
 
 using namespace std;
 
@@ -36,6 +38,11 @@ namespace miracle {
 				return Token::_operator;
 			}
 
+			if (auto punctuator = getPunctuator(got)) {
+				this->punctuator = punctuator;
+				return Token::punctuator;
+			}
+
 			if (stream.eof()) {
 				return Token::endOfInput;
 			} else {
@@ -51,10 +58,27 @@ namespace miracle {
 			return _operator.value();
 		}
 
+		Punctuator getPunctuator() const {
+			return punctuator.value();
+		}
+
 	private:
 		stringstream stream;
-		double numberValue;
-		optional<Operator> _operator;
+		double numberValue; // TODO: move to token
+		optional<Operator> _operator; // TODO: move to token
+		optional<Punctuator> punctuator; // TODO: move to token
+
+		map<char, Operator> operators {
+			{ '+', Operator::add },
+			{ '-', Operator::subtruct },
+			{ '*', Operator::multiply },
+			{ '/', Operator::divide }
+		};
+
+		map<char, Punctuator> punctuators {
+			{ '(', Punctuator::left_parenthesis },
+			{ ')', Punctuator::right_parenthesis }
+		};
 
 		char getCharacter() {
 			return stream.get();
@@ -74,16 +98,18 @@ namespace miracle {
 		}
 
 		optional<Operator> getOperator(char character) {
-			auto predicate = [=](auto pair) {
-				return pair.second == character;
-			};
-
-			auto op = find_if(operators.begin(), operators.end(), predicate);
-
-			if (op == operators.end()) {
-				return {};
+			if (operators.contains(character)) {
+				return operators[character];
 			} else {
-				return op->first;
+				return {};
+			}
+		}
+
+		optional<Punctuator> getPunctuator(char character) {
+			if (punctuators.contains(character)) {
+				return punctuators[character];
+			} else {
+				return {};
 			}
 		}
 	};

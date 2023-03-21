@@ -2,21 +2,28 @@
 #define UNARY_EXPRESSION_HEADER_FILE
 
 
-#include "Node.h"
+#include "AST.h"
+#include "UnaryOperator.h"
+#include "Operand.h"
 
 using namespace std;
 
 namespace miracle {
-	class UnaryExpression: public Node {
+	class UnaryExpression: private AST {
 	public:
-		UnaryExpression(double value): value(value) {}
+		UnaryExpression(shared_ptr<UnaryOperator> unaryOperator, shared_ptr<Operand> operand1): unaryOperator(unaryOperator), operand1(operand1) {}
 
-		double getValue() const {
-			return value;
+		const shared_ptr<UnaryOperator> getUnaryOperator() const {
+			return unaryOperator;
+		}
+
+		const shared_ptr<Operand> getOperand() const {
+			return operand1;
 		}
 
 	private:
-		double value;
+		shared_ptr<UnaryOperator> unaryOperator;
+		shared_ptr<Operand> operand1;
 	};
 }
 

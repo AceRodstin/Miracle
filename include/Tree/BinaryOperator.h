@@ -2,13 +2,13 @@
 #define BINARY_OPERATOR_HEADER_FILE
 
 
-#include "Node.h"
+#include "AST.h"
 #include "Operator.h"
 
 using namespace std;
 
 namespace miracle {
-	class BinaryOperator: public Node {
+	class BinaryOperator: public AST {
 	public:
 		BinaryOperator(Operator op): _operator(op) {}
 

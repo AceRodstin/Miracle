@@ -2,12 +2,12 @@
 #define UNARY_OPERATOR_HEADER_FILE
 
 
-#include "Node.h"
+#include "AST.h"
 
 using namespace std;
 
 namespace miracle {
-	class UnaryOperator: public Node {
+	class UnaryOperator: public AST {
 	public:
 		UnaryOperator(Operator op): _operator(op) {}
 
