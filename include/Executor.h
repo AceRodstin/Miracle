@@ -42,14 +42,29 @@ namespace miracle {
 		}
 
 		double execute(shared_ptr<UnaryExpression> unaryExpression) {
+			double value;
 			auto operand = unaryExpression->getOperand();
 
 			if (auto expression = operand->getExpression()) {
-				return execute(expression);
+				value = execute(expression);
+			} else {
+				auto number = operand->getNumber();
+				value = number.value();
 			}
 
-			auto number = operand->getNumber();
-			return number.value();
+			if (auto unaryOperator = unaryExpression->getUnaryOperator()) {
+				auto op = unaryOperator->getOperator();
+
+				switch (op) {
+				case Operator::subtruct:
+					value = -value;
+					break;
+				default:
+					break;
+				}
+			}
+
+			return value;
 		}
 	};
 }
