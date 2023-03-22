@@ -1,3 +1,11 @@
+//
+//  Operand.h
+//  Miracle
+//
+//  Created by Ace Rodstin on 3/22/23.
+//  Copyright © 2023 Ace Rodstin. All rights reserved.
+//
+
 #ifndef OPERAND_HEADER_FILE
 #define OPERAND_HEADER_FILE
 

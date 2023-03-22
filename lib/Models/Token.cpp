@@ -1,3 +1,11 @@
+//
+//  Token.cpp
+//  Miracle
+//
+//  Created by Ace Rodstin on 3/22/23.
+//  Copyright © 2023 Ace Rodstin. All rights reserved.
+//
+
 #include "Models/Token.h"
 
 using namespace miracle;
