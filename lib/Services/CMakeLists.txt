@@ -3,6 +3,7 @@ set(
 	"Executor.cpp"
 	"SyntacticAnalyzer.cpp"
 	"TokensParser.cpp"
+	"Calculator.cpp"
 )
 
 add_library(services ${LIBRARY_SOURCES})

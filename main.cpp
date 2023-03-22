@@ -8,9 +8,7 @@
 
 #include <iostream>
 #include <string>
-#include "Services/TokensParser.h"
-#include "Services/SyntacticAnalyzer.h"
-#include "Services/Executor.h"
+#include "Services/Calculator.h"
 #include <sstream>
 
 using namespace miracle;
@@ -23,19 +21,9 @@ string format(double value) {
 	return stream.str();
 }
 
-string calculate(string expression) {
-	TokensParser tokensParser { expression };
-
-	SyntacticAnalyzer syntacticAnalyzer { tokensParser };
-	auto tree = syntacticAnalyzer.parse();
-
-	Executor executor { tree };
-	double result = executor.execute();
-
-	return format(result);
-}
-
 int main() {
+	Calculator calculator;
+
 	while (true) {
 		cout << "Enter the expression> ";
 
@@ -44,10 +32,11 @@ int main() {
 
 		if (cin.eof()) {
 			break;
-		} else {
-			auto result = calculate(expression);
-			cout << "Result: " << result << endl;
 		}
+
+		auto result = calculator.calculate(expression);
+		auto formattedResult = format(result);
+		cout << "Result: " << result << endl;
 	}
 
 	return 0;
