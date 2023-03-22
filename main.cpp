@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
-#include "TokensParser.h"
-#include "SyntacticAnalyzer.h"
-#include "Executor.h"
+#include "Services/TokensParser.h"
+#include "Services/SyntacticAnalyzer.h"
+#include "Services/Executor.h"
 #include <sstream>
 
 using namespace miracle;

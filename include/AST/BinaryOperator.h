@@ -3,18 +3,14 @@
 
 
 #include "AST.h"
-#include "Operator.h"
-
-using namespace std;
+#include "Models/Operator.h"
 
 namespace miracle {
 	class BinaryOperator: public AST {
 	public:
-		BinaryOperator(Operator op): _operator(op) {}
+		BinaryOperator(Operator op);
 
-		Operator getOperator() const {
-			return _operator;
-		}
+		Operator getOperator() const;
 
 	private:
 		Operator _operator;

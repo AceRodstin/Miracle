@@ -7,12 +7,6 @@ namespace miracle {
 	public:
 		virtual ~AST() = default;
 	};
-
-	class Expression;
-	class UnaryExpression;
-	class Operand;
-	class UnaryOperator;
-	class BinaryOperator;
 }
 
 

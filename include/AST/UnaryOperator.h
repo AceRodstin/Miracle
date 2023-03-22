@@ -3,17 +3,14 @@
 
 
 #include "AST.h"
-
-using namespace std;
+#include "Models/Operator.h"
 
 namespace miracle {
 	class UnaryOperator: public AST {
 	public:
-		UnaryOperator(Operator op): _operator(op) {}
+		UnaryOperator(Operator op);
 
-		Operator getOperator() const {
-			return _operator;
-		}
+		Operator getOperator() const;
 
 	private:
 		Operator _operator;
