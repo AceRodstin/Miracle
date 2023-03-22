@@ -27,7 +27,7 @@ namespace miracle {
 		shared_ptr<Expression> expression;
 
 		double execute(shared_ptr<Expression> expression);
-		double execute(shared_ptr<UnaryExpression> unaryExpression);
+		double execute(UnaryExpression& unaryExpression);
 	};
 }
 

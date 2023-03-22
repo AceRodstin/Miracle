@@ -18,8 +18,9 @@ double Executor::execute() {
 }
 
 double Executor::execute(shared_ptr<Expression> expression) {
-	if (auto unaryExpression = expression->getUnaryExpression()) {
-		return execute(unaryExpression);
+	if (auto expr = expression->getUnaryExpression()) {
+		auto unaryExpression = dynamic_cast<UnaryExpression*>(expr.get());
+		return execute(*unaryExpression);
 	}
 
 	auto lhs = execute(expression->getLhs());
@@ -39,9 +40,9 @@ double Executor::execute(shared_ptr<Expression> expression) {
 	}
 }
 
-double Executor::execute(shared_ptr<UnaryExpression> unaryExpression) {
+double Executor::execute(UnaryExpression& unaryExpression) {
 	double value;
-	auto operand = unaryExpression->getOperand();
+	auto operand = unaryExpression.getOperand();
 
 	if (auto expression = operand->getExpression()) {
 		value = execute(expression);
@@ -50,7 +51,7 @@ double Executor::execute(shared_ptr<UnaryExpression> unaryExpression) {
 		value = number.value();
 	}
 
-	if (auto unaryOperator = unaryExpression->getUnaryOperator()) {
+	if (auto unaryOperator = unaryExpression.getUnaryOperator()) {
 		auto op = unaryOperator->getOperator();
 
 		switch (op) {
