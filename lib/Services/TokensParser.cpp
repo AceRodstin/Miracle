@@ -46,7 +46,9 @@ char TokensParser::getCharacter() {
 }
 
 double TokensParser::getNumber(char character) {
-	string numberLiteral = { character, 0 };
+	string numberLiteral;
+	numberLiteral += character;
+
 	char peeked = stream.peek();
 
 	while (isdigit(peeked) || peeked == '.') {
