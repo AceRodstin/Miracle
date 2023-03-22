@@ -173,3 +173,16 @@ TEST(CalculatorTests, whenMultipleParenthesisThenResultCorrect) {
 	// Then
 	ASSERT_EQ(result, expected);
 }
+
+TEST(CalculatorTests, whenFloatLiteralThenResultCorrect) {
+	// Given
+	string expression = "1.5 + 2";
+	double expected = 3.5;
+
+	// When
+	Calculator calculator;
+	auto result = calculator.calculate(expression);
+
+	// Then
+	ASSERT_EQ(result, expected);
+}
