@@ -6,38 +6,20 @@
 //  Copyright © 2023 Ace Rodstin. All rights reserved.
 //
 
-#include <iostream>
-#include <string>
-#include "Services/Calculator.h"
-#include <sstream>
+#include "llvm/Support/TargetSelect.h"
+#include "Services/JIT.h"
 
 using namespace miracle;
-using namespace std;
 
-string format(double value) {
-	stringstream stream;
-	stream.precision(2);
-	stream << value;
-	return stream.str();
-}
+// определить target machine
+// создать JIT
+// сгенерировать IR
+// выполнить расчет
+// вывести результат
 
 int main() {
-	Calculator calculator;
-
-	while (true) {
-		cout << "Enter the expression> ";
-
-		string expression;
-		getline(cin, expression);
-
-		if (cin.eof()) {
-			break;
-		}
-
-		auto result = calculator.calculate(expression);
-		auto formattedResult = format(result);
-		cout << "Result: " << result << endl;
-	}
+	InitializeNativeTarget();
+	auto jit = JIT::create();
 
 	return 0;
 }
