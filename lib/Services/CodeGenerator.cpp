@@ -7,14 +7,23 @@
 //
 
 #include "Services/CodeGenerator.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
+#include "llvm/IR/Verifier.h"
 
 using namespace miracle;
 
 CodeGenerator::CodeGenerator(DataLayout& dataLayout):
 	context(make_unique<LLVMContext>()),
 	module(make_unique<Module>("<module>", *context)),
-	builder(*context) {
+	builder(*context),
+	passManager(make_unique<legacy::FunctionPassManager>(module.get())) {
 		module->setDataLayout(dataLayout);
+  		passManager->add(createInstructionCombiningPass());
+  		passManager->add(createReassociatePass());
+  		passManager->add(createGVNPass());
+  		passManager->doInitialization();
 }
 
 ThreadSafeModule CodeGenerator::generate(string functionName, shared_ptr<Expression> expression) {
@@ -26,6 +35,9 @@ ThreadSafeModule CodeGenerator::generate(string functionName, shared_ptr<Express
 
 	auto value = generate(expression);
 	builder.CreateRet(value);
+	
+	verifyFunction(*function);
+	passManager->run(*function);
 
 	return { move(module), move(context) };
 }

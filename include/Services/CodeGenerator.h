@@ -16,6 +16,7 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/ExecutionEngine/Orc/ThreadSafeModule.h"
+#include "llvm/IR/LegacyPassManager.h"
 
 using namespace llvm;
 using namespace orc;
@@ -31,6 +32,7 @@ namespace miracle {
 		unique_ptr<LLVMContext> context;
 		unique_ptr<Module> module;
 		IRBuilder<> builder;
+		unique_ptr<legacy::FunctionPassManager> passManager;
 
 		Value* generate(shared_ptr<Expression> expression);
 		Value* generate(shared_ptr<UnaryExpression> unaryExpression);
