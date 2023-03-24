@@ -18,27 +18,26 @@
 
 using namespace miracle;
 
-// определить target machine +
-// создать JIT +
-// Create module, context, builder
-// Generate code
-// Add module to jit
-// выполнить расчет
-// вывести результат
-
-// Создать контекст
-// Создать модуль
-// Создать билдер
-// Сгенерировать код
-// Добавить модуль в JIT
-// Найти в JIT метод и считать возвращенное значение
-// Вывести результат
-
 string requestExpression() {
 	cout << "Enter the expression> ";
 	string expression;
 	getline(cin, expression);
 	return expression;
+}
+
+double run(JIT& jit, string functionName) {
+	auto symbol = jit.lookup(functionName);
+	auto address = symbol.getAddress();
+	auto calculate = jitTargetAddressToFunction<double (*)()>(address);
+	auto result = calculate();
+	return result;
+}
+
+string format(double value) {
+	stringstream stream;
+	stream.precision(2);
+	stream << value;
+	return stream.str();
 }
 
 int main() {
@@ -61,12 +60,9 @@ int main() {
 	auto module = codeGenerator.generate(functionName, tree);
 
 	jit->addModule(move(module));
+	auto result = run(*jit, functionName);
+	auto formattedResult = format(result);
 
-	auto symbol = jit->lookup(functionName);
-	auto address = symbol.getAddress();
-	auto calculate = jitTargetAddressToFunction<double (*)()>(address);
-	auto result = calculate();
-
-	cout << "Result: " << result << endl;
+	cout << "Result: " << formattedResult << endl;
 	return 0;
 }
