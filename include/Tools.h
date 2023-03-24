@@ -11,11 +11,18 @@
 
 
 #include "llvm/Support/Error.h"
+#include "llvm/Support/TargetSelect.h"
 
 using namespace llvm;
 
 namespace tools {
 	static ExitOnError validate;
+
+	static void initializeHost() {
+		InitializeNativeTarget();
+		InitializeNativeTargetAsmPrinter();
+		InitializeNativeTargetAsmParser();
+	}
 }
 
 
