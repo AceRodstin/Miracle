@@ -1,9 +1,7 @@
 set(
 	LIBRARY_SOURCES
-	"Executor.cpp"
 	"SyntacticAnalyzer.cpp"
 	"TokensParser.cpp"
-	"Calculator.cpp"
 	"JIT.cpp"
 )
 

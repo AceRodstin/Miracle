@@ -7,58 +7,51 @@
 //
 
 #include "Services/JIT.h"
+#include "Tools.h"
 
 using namespace miracle;
 
 JIT::JIT(
-	shared_ptr<ExecutionSession> executionSession,
-	shared_ptr<DataLayout> dataLayout,
-	shared_ptr<JITTargetMachineBuilder> builder
+	unique_ptr<ExecutionSession> executionSession,
+	JITTargetMachineBuilder builder,
+	DataLayout dataLayout
 ):
-	executionSession(executionSession),
-	dataLayout(dataLayout),
-	mangle(*executionSession, *dataLayout),
-	objectLayer(*executionSession, []() { return std::make_unique<SectionMemoryManager>(); }),
-	compileLayer(*executionSession, objectLayer, make_unique<ConcurrentIRCompiler>(*builder)),
-	context(make_unique<LLVMContext>()),
-	dylib(executionSession->createBareJITDylib("<main>"))
+	executionSession(move(executionSession)),
+	dataLayout(move(dataLayout)),
+	mangle(*(this->executionSession), this->dataLayout),
+	objectLayer(*(this->executionSession), []() { return make_unique<SectionMemoryManager>(); }),
+	compileLayer(*(this->executionSession), objectLayer, make_unique<ConcurrentIRCompiler>(move(builder))),
+	dylib(this->executionSession->createBareJITDylib("<main>"))
 {
-	auto globalPrefix = dataLayout->getGlobalPrefix();
+	auto globalPrefix = dataLayout.getGlobalPrefix();
 	auto process = DynamicLibrarySearchGenerator::GetForCurrentProcess(globalPrefix);
 	auto generator = cantFail(move(process));
 	dylib.addGenerator(move(generator));
 }
 
 JIT::~JIT() {
-	auto error = executionSession->endSession();
-
-	if (error) {
-		executionSession->reportError(move(error));
-	}
+	tools::validate(executionSession->endSession());
 }
 
-shared_ptr<JIT> JIT::create() {
-    auto executorProcessControl = SelfExecutorProcessControl::Create();
+unique_ptr<JIT> JIT::create() {
+	auto executorProcessControl = tools::validate(SelfExecutorProcessControl::Create());
+	auto executionSession = make_unique<ExecutionSession>(move(executorProcessControl));
+	auto targetMachineBuilder = tools::validate(JITTargetMachineBuilder::detectHost());
+	auto dataLayout = tools::validate(targetMachineBuilder.getDefaultDataLayoutForTarget());
+	return make_unique<JIT>(move(executionSession), move(targetMachineBuilder), move(dataLayout));
+}
 
-	if (!executorProcessControl) {
-		return nullptr;
-	}
+void JIT::addModule(ThreadSafeModule module) {
+	auto resourceTracker = dylib.getDefaultResourceTracker();
+	tools::validate(compileLayer.add(resourceTracker, move(module)));
+}
 
-	auto targetMachineBuilder = JITTargetMachineBuilder::detectHost();
+JITEvaluatedSymbol JIT::lookup(string symbolName) {
+	ArrayRef<JITDylib *> searchModule = &dylib;
+	SymbolStringPtr symbol = mangle(symbolName);
+	return tools::validate(executionSession->lookup(searchModule, symbol));
+}
 
-	if (!targetMachineBuilder) {
-		return nullptr;
-	}
-
-	auto defaultDataLayout = targetMachineBuilder->getDefaultDataLayoutForTarget();
-
-	if (!defaultDataLayout) {
-		return nullptr;
-	}
-
-	auto executionSession = make_shared<ExecutionSession>(move(*executorProcessControl));
-	auto dataLayout = make_shared<DataLayout>(*defaultDataLayout);
-	auto builder = make_shared<JITTargetMachineBuilder>(*targetMachineBuilder);
-
-	return make_unique<JIT>(executionSession, dataLayout, builder);
+const DataLayout& JIT::getDataLayout() const {
+	return dataLayout;
 }

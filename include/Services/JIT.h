@@ -9,11 +9,11 @@
 #ifndef JIT_HEADER_FILE
 #define JIT_HEADER_FILE
 
-
 #include "llvm/ExecutionEngine/JITSymbol.h"
 #include "llvm/ExecutionEngine/Orc/CompileUtils.h"
 #include "llvm/ExecutionEngine/Orc/Core.h"
 #include "llvm/ExecutionEngine/Orc/ExecutionUtils.h"
+#include "llvm/ExecutionEngine/Orc/ExecutorProcessControl.h"
 #include "llvm/ExecutionEngine/Orc/IRCompileLayer.h"
 #include "llvm/ExecutionEngine/Orc/JITTargetMachineBuilder.h"
 #include "llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h"
@@ -21,6 +21,7 @@
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/LLVMContext.h"
 #include <memory>
+#include <string>
 
 using namespace std;
 using namespace llvm;
@@ -29,21 +30,23 @@ using namespace orc;
 namespace miracle {
 	class JIT {
 	public:
-	JIT(shared_ptr<ExecutionSession> executionSession, shared_ptr<DataLayout> dataLayout, shared_ptr<JITTargetMachineBuilder> builder);
-	~JIT();
-	
-	static shared_ptr<JIT> create();
+		JIT(unique_ptr<ExecutionSession> executionSession, JITTargetMachineBuilder builder, DataLayout dataLayout);
+		~JIT();
+
+		static unique_ptr<JIT> create();
+		void addModule(ThreadSafeModule module);
+		JITEvaluatedSymbol lookup(string symbolName);
+		const DataLayout& getDataLayout() const;
 
 	private:
-		shared_ptr<ExecutionSession> executionSession;
+		unique_ptr<ExecutionSession> executionSession;
 
-		shared_ptr<DataLayout> dataLayout;
+		DataLayout dataLayout;
 		MangleAndInterner mangle;
 
 		RTDyldObjectLinkingLayer objectLayer;
 		IRCompileLayer compileLayer;
 
-		ThreadSafeContext context;
 		JITDylib& dylib;
 	};
 }
