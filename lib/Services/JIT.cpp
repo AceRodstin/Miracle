@@ -52,6 +52,12 @@ JITEvaluatedSymbol JIT::lookup(string symbolName) {
 	return tools::validate(executionSession->lookup(searchModule, symbol));
 }
 
+void JIT::remove(string symbolName) {
+	SymbolStringPtr symbol = mangle(symbolName);
+	SymbolNameSet symbols { symbol };
+	tools::validate(dylib.remove(symbols));
+}
+
 const DataLayout& JIT::getDataLayout() const {
 	return dataLayout;
 }

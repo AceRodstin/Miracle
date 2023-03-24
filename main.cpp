@@ -48,21 +48,29 @@ int main() {
 	auto jit = JIT::create();
 	auto dataLayout = jit->getDataLayout();
 
-	auto expression = requestExpression();
+	while (true) {
+		auto expression = requestExpression();
 
-	TokensParser tokensParser { expression };
+		if (cin.eof()) {
+			break;
+		}
 
-	SyntacticAnalyzer syntacticAnalyzer { tokensParser };
-	auto tree = syntacticAnalyzer.parse();
-		
-	CodeGenerator codeGenerator { dataLayout };
-	string functionName = "calculate";
-	auto module = codeGenerator.generate(functionName, tree);
+		TokensParser tokensParser { expression };
 
-	jit->addModule(move(module));
-	auto result = run(*jit, functionName);
-	auto formattedResult = format(result);
+		SyntacticAnalyzer syntacticAnalyzer { tokensParser };
+		auto tree = syntacticAnalyzer.parse();
+			
+		CodeGenerator codeGenerator { dataLayout };
+		string functionName = "calculate";
+		auto module = codeGenerator.generate(functionName, tree);
 
-	cout << "Result: " << formattedResult << endl;
+		jit->addModule(move(module));
+		auto result = run(*jit, functionName);
+		jit->remove(functionName);
+		auto formattedResult = format(result);
+
+		cout << "Result: " << formattedResult << endl;
+	}
+	
 	return 0;
 }

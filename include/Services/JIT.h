@@ -36,6 +36,7 @@ namespace miracle {
 		static unique_ptr<JIT> create();
 		void addModule(ThreadSafeModule module);
 		JITEvaluatedSymbol lookup(string symbolName);
+		void remove(string symbolName);
 		const DataLayout& getDataLayout() const;
 
 	private:

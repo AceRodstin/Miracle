@@ -11,7 +11,7 @@
 using namespace miracle;
 
 Operand::Operand(optional<double> number): number(number), expression(nullptr) {}
-Operand::Operand(shared_ptr<Expression> expression): number(0), expression(expression) {}
+Operand::Operand(shared_ptr<Expression> expression): number(), expression(expression) {}
 
 optional<double> Operand::getNumber() const {
 	return number;
